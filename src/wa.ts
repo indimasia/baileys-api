@@ -12,6 +12,7 @@ import type { Response } from 'express';
 // import { join } from 'path';
 import { toDataURL } from 'qrcode';
 import { logger, prisma } from './shared';
+import axios from 'axios';
 
 type Session = WASocket & {
   destroy: () => Promise<void>;
@@ -76,6 +77,11 @@ export async function createSession(options: createSessionOptions) {
       logger.error(e, 'An error occured during session destroy');
     } finally {
       sessions.delete(sessionId);
+      axios.get(process.env.LARAVEL_URL + '/api/sessions/close/' + sessionId)
+        .then(function (response) {
+          // handle success
+          console.log('Session id ' + sessionId + ' Disconnect');
+        })
     }
   };
 
